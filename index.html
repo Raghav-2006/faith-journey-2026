@@ -472,18 +472,23 @@
      *  Tip: use \n for new lines, and keep verses in quotes for readability.
      * ===================================================================== */
     const journeyEntries = {
-      /* ---------- EXAMPLE (uncomment + edit to use) ----------
-      "2026-05-01": {
-        whatIDid:
-          "Opened this journey with a quiet morning prayer and read Psalm 23.",
-        whatILearned:
-          "Psalm 23:1 — \"The Lord is my shepherd; I shall not want.\"\n" +
-          "He leads gently. I don't need to strive; I can simply follow.",
-        photo: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200",
-        note:  "Morning light through the window. Felt held.",
+      "2026-05-03": {
+        whatIDid:     "testing",
+        whatILearned: "hello hayoung, i miss you.",
+        note:         "i recommend you should watch this anime edge runners its so good.",
       },
-      -------------------------------------------------------- */
     };
+
+    /* =====================================================================
+     *  LOCKED DAYS
+     *  ---------------------------------------------------------------------
+     *  Any date key in this set can't be opened — the day appears faded
+     *  with a tiny lock icon in the calendar.
+     * ===================================================================== */
+    const lockedDays = new Set([
+      "2026-05-01",
+      "2026-05-02",
+    ]);
 
     /* =====================================================================
      *  MONTH CONFIGURATION
@@ -511,6 +516,7 @@
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
     const hasEntry = (key) => !!journeyEntries[key];
+    const isLocked = (key) => lockedDays.has(key);
 
     const countMonthEntries = (m) => {
       let n = 0;
@@ -518,15 +524,24 @@
       return n;
     };
 
-    const countTotal = () => months.reduce((s, m) => s + countMonthEntries(m), 0);
+    // Days that count toward progress — locked days are excluded.
+    const countMonthAvailable = (m) => {
+      let n = 0;
+      for (let d = 1; d <= m.days; d++) if (!isLocked(dateKey(m.year, m.month, d))) n++;
+      return n;
+    };
+
+    const countTotal          = () => months.reduce((s, m) => s + countMonthEntries(m), 0);
+    const countTotalAvailable = () => months.reduce((s, m) => s + countMonthAvailable(m), 0);
 
     /* =====================================================================
      *  HEADER PROGRESS
      *  ===================================================================== */
     function updateProgress() {
-      const total = countTotal();
-      document.getElementById('overallProgress').textContent = `${total}/${TOTAL_DAYS} days`;
-      const pct = TOTAL_DAYS > 0 ? total / TOTAL_DAYS : 0;
+      const total     = countTotal();
+      const available = countTotalAvailable();
+      document.getElementById('overallProgress').textContent = `${total}/${available} days`;
+      const pct = available > 0 ? total / available : 0;
       document.getElementById('progressPercent').textContent = `${Math.round(pct * 100)}%`;
       const circ = 2 * Math.PI * 20;
       document.getElementById('progressCircle').style.strokeDashoffset = circ - circ * pct;
@@ -538,8 +553,9 @@
     function renderMonthCards() {
       const grid = document.getElementById('monthGrid');
       grid.innerHTML = months.map((m, i) => {
-        const updated = countMonthEntries(m);
-        const pct = (updated / m.days) * 100;
+        const updated   = countMonthEntries(m);
+        const available = countMonthAvailable(m);
+        const pct       = available > 0 ? (updated / available) * 100 : 0;
         return `
           <button
             onclick="showMonth(${i})"
@@ -560,7 +576,7 @@
 
               <!-- Progress -->
               <div class="flex items-center justify-between">
-                <span class="text-[11px] text-ink-2">${updated}/${m.days} days</span>
+                <span class="text-[11px] text-ink-2">${updated}/${available} days</span>
                 <div class="flex-1 mx-3 h-[5px] bg-white/70 rounded-full overflow-hidden">
                   <div class="h-full bg-gradient-to-r from-sky to-sage progress-bar-fill rounded-full" style="width:${pct}%"></div>
                 </div>
@@ -578,13 +594,15 @@
         let html = '';
         for (let d = 0; d < firstDay; d++) html += `<div></div>`;
         for (let d = 1; d <= m.days; d++) {
-          const key = dateKey(m.year, m.month, d);
+          const key    = dateKey(m.year, m.month, d);
           const filled = hasEntry(key);
-          html += `
-            <div class="mini-day rounded-full ${filled
+          const locked = isLocked(key);
+          const cls = locked
+            ? 'bg-transparent border border-dashed border-ink-3/40'
+            : filled
               ? 'bg-gradient-to-br from-sky to-sage shadow-[0_0_0_1px_rgba(255,255,255,0.6)]'
-              : 'bg-white/60 border border-white'}">
-            </div>`;
+              : 'bg-white/60 border border-white';
+          html += `<div class="mini-day rounded-full ${cls}"></div>`;
         }
         mini.innerHTML = html;
       });
@@ -614,28 +632,46 @@
 
       document.getElementById('calMonthEyebrow').textContent = m.word;
       document.getElementById('calMonthTitle').textContent = `${m.name} ${m.year}`;
-      const updated = countMonthEntries(m);
-      document.getElementById('calMonthProgress').textContent = `${updated}/${m.days} days updated`;
+      const updated   = countMonthEntries(m);
+      const available = countMonthAvailable(m);
+      document.getElementById('calMonthProgress').textContent = `${updated}/${available} days updated`;
 
       const grid = document.getElementById('calendarGrid');
       const firstDay = new Date(m.year, m.month, 1).getDay();
       let html = '';
       for (let d = 0; d < firstDay; d++) html += `<div></div>`;
       for (let d = 1; d <= m.days; d++) {
-        const key = dateKey(m.year, m.month, d);
-        const filled = hasEntry(key);
+        const key     = dateKey(m.year, m.month, d);
+        const filled  = hasEntry(key);
+        const locked  = isLocked(key);
         const isToday = key === todayKey;
-        html += `
-          <button
-            onclick="openDay('${key}')"
-            class="day-cell rounded-2xl bg-white/70 hover:bg-white border border-white flex flex-col items-center justify-center relative shadow-soft ${filled ? 'has-entry' : ''} ${isToday ? 'is-today' : ''}"
-            aria-label="${m.name} ${d}"
-          >
-            <span class="text-base md:text-lg font-medium text-ink">${d}</span>
-            ${filled
-              ? '<span class="absolute bottom-1.5 md:bottom-2 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-sky to-sage"></span>'
-              : ''}
-          </button>`;
+
+        if (locked) {
+          html += `
+            <div
+              class="day-cell rounded-2xl bg-white/30 border border-dashed border-ink-3/30 flex flex-col items-center justify-center relative cursor-not-allowed select-none"
+              aria-label="${m.name} ${d} — unavailable"
+              title="Unavailable"
+            >
+              <span class="text-base md:text-lg font-light text-ink-3/60 line-through">${d}</span>
+              <svg class="absolute bottom-1.5 md:bottom-2 w-3 h-3 text-ink-3/60" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect x="5" y="11" width="14" height="9" rx="2"/>
+                <path d="M8 11V8a4 4 0 118 0v3" stroke-linecap="round"/>
+              </svg>
+            </div>`;
+        } else {
+          html += `
+            <button
+              onclick="openDay('${key}')"
+              class="day-cell rounded-2xl bg-white/70 hover:bg-white border border-white flex flex-col items-center justify-center relative shadow-soft ${filled ? 'has-entry' : ''} ${isToday ? 'is-today' : ''}"
+              aria-label="${m.name} ${d}"
+            >
+              <span class="text-base md:text-lg font-medium text-ink">${d}</span>
+              ${filled
+                ? '<span class="absolute bottom-1.5 md:bottom-2 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-sky to-sage"></span>'
+                : ''}
+            </button>`;
+        }
       }
       grid.innerHTML = html;
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -647,6 +683,7 @@
     let modalCurrentKey = null;
 
     function openDay(key) {
+      if (isLocked(key)) return;
       modalCurrentKey = key;
       const [y, mo, d] = key.split('-').map(Number);
       const dateObj = new Date(y, mo - 1, d);
