@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My 4-Month Faith Journey · May – August 2026</title>
+  <meta name="description" content="A quiet place to walk with God for four months." />
+
+  <!-- Fonts: Poppins (body) + Playfair Display (display/serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // =====================================================================
+    //  THEME CONFIGURATION
+    // =====================================================================
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          },
+          colors: {
+            cream:      '#FAF9F6',
+            'cream-2':  '#FDFBF7',
+            'cream-3':  '#F5F1E8',
+            sky:        '#A5D6FF',
+            sage:       '#B2D8C8',
+            peach:      '#F8C4B8',
+            lavender:   '#D4C5E8',
+            ink:        '#3A3A3A',
+            'ink-2':    '#6B6B6B',
+            'ink-3':    '#9A9A9A',
+          },
+          boxShadow: {
+            soft:       '0 4px 20px rgba(60, 60, 60, 0.05)',
+            'soft-lg':  '0 10px 40px rgba(60, 60, 60, 0.08)',
+            'soft-xl':  '0 20px 60px rgba(60, 60, 60, 0.10)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* =====================================================================
+       BASE
+       ===================================================================== */
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #FAF9F6;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(165, 214, 255, 0.18) 0, transparent 45%),
+        radial-gradient(circle at 85% 0%,  rgba(212, 197, 232, 0.16) 0, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(178, 216, 200, 0.18) 0, transparent 45%),
+        radial-gradient(circle at 10% 95%, rgba(248, 196, 184, 0.14) 0, transparent 45%);
+      color: #3A3A3A;
+      font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Soft scrollbar */
+    ::-webkit-scrollbar          { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track    { background: transparent; }
+    ::-webkit-scrollbar-thumb    { background: rgba(165, 214, 255, 0.35); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(165, 214, 255, 0.55); }
+
+    /* =====================================================================
+       3D FLIP CARD
+       ===================================================================== */
+    .flip-card {
+      perspective: 1600px;
+      width: 100%;
+      height: min(640px, 86dvh);
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;          /* faces never scroll themselves */
+      border-radius: 28px;
+    }
+    .flip-card-back { transform: rotateY(180deg); }
+    .flip-card-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;          /* content scrolls inside the face */
+      overscroll-behavior: contain;
+      scroll-behavior: auto;     /* no smooth auto-scroll on focus */
+    }
+    .flip-card-footer { flex: 0 0 auto; }
+
+    /* =====================================================================
+       ANIMATIONS
+       ===================================================================== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up { animation: fadeInUp 0.55s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+    @keyframes modalEnter {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0); }
+    }
+    .modal-enter { animation: modalEnter 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    @keyframes backdropFade {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .backdrop-fade { animation: backdropFade 0.3s ease-out; }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+    .floaty { animation: floaty 4s ease-in-out infinite; }
+
+    /* =====================================================================
+       COMPONENTS
+       ===================================================================== */
+    .month-card {
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                  box-shadow 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .month-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .day-cell {
+      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      aspect-ratio: 1 / 1;
+    }
+    .day-cell:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 20px rgba(165, 214, 255, 0.25);
+    }
+    .day-cell.has-entry {
+      background: linear-gradient(135deg, rgba(165, 214, 255, 0.22) 0%, rgba(178, 216, 200, 0.22) 100%);
+    }
+    .day-cell.is-today {
+      outline: 2px solid rgba(165, 214, 255, 0.7);
+      outline-offset: 2px;
+    }
+
+    .mini-day { aspect-ratio: 1 / 1; }
+
+    .progress-bar-fill { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .progress-ring     { transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* Subtle divider flourish */
+    .flourish {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: #B0A99A;
+    }
+    .flourish::before, .flourish::after {
+      content: ""; display: block; width: 28px; height: 1px;
+      background: linear-gradient(to right, transparent, #C9C3B5, transparent);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- =================================================================
+       HEADER
+       ================================================================= -->
+  <header class="sticky top-0 z-40 backdrop-blur-lg bg-cream/70 border-b border-white/70">
+    <div class="max-w-6xl mx-auto px-5 md:px-8 py-4 md:py-5 flex items-center justify-between gap-4 flex-wrap">
+      <!-- Left: logo + title -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-sky to-lavender/90 flex items-center justify-center shadow-soft floaty">
+          <!-- Clean Christian cross icon -->
+          <svg class="w-5 h-5 md:w-6 md:h-6 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M10.5 2h3v5H19v3h-5.5v12h-3V10H5V7h5.5V2z"/>
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <h1 class="font-serif text-[1.15rem] md:text-2xl font-semibold text-ink tracking-tight">
+            My 4-Month Faith Journey
+          </h1>
+          <p class="text-[11px] md:text-sm text-ink-2 font-light mt-0.5">
+            May – August 2026
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: overall progress -->
+      <div class="flex items-center gap-3 bg-white/80 rounded-2xl px-4 py-2.5 shadow-soft border border-white">
+        <div class="flex flex-col items-end">
+          <span class="text-[10px] md:text-[11px] text-ink-3 font-light uppercase tracking-widest">Progress</span>
+          <span id="overallProgress" class="text-[13px] md:text-sm font-semibold text-ink">0/123 days</span>
+        </div>
+        <div class="w-11 h-11 md:w-12 md:h-12 relative">
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" stroke="#EFEADD" stroke-width="4" fill="none"/>
+            <circle
+              id="progressCircle"
+              cx="24" cy="24" r="20"
+              stroke="url(#progressGrad)"
+              stroke-width="4"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="125.66"
+              stroke-dashoffset="125.66"
+              class="progress-ring"
+            />
+            <defs>
+              <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"  stop-color="#A5D6FF"/>
+                <stop offset="100%" stop-color="#B2D8C8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span id="progressPercent" class="text-[10px] md:text-[11px] font-semibold text-ink-2">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =================================================================
+       MAIN
+       ================================================================= -->
+  <main class="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-14">
+
+    <!-- =========================
+         HOME VIEW — Month grid
+         ========================= -->
+    <section id="homeView" class="fade-in-up">
+      <!-- Month cards -->
+      <div id="monthGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"></div>
+    </section>
+
+    <!-- =========================
+         CALENDAR VIEW — One month
+         ========================= -->
+    <section id="calendarView" class="hidden fade-in-up">
+      <div class="flex items-center justify-between mb-6 md:mb-8">
+        <button
+          onclick="showHome()"
+          class="flex items-center gap-2 text-ink-2 hover:text-ink transition-colors group"
+        >
+          <span class="w-9 h-9 rounded-full bg-white/80 group-hover:bg-white flex items-center justify-center shadow-soft border border-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </span>
+          <span class="text-sm">All months</span>
+        </button>
+        <span id="calMonthProgress" class="text-xs md:text-sm text-ink-2"></span>
+      </div>
+
+      <div class="bg-white/75 backdrop-blur-sm rounded-[28px] p-6 md:p-10 shadow-soft-lg border border-white">
+        <div class="text-center mb-8 md:mb-10">
+          <p id="calMonthEyebrow" class="text-[11px] uppercase tracking-[0.3em] text-ink-3 mb-2"></p>
+          <h2 id="calMonthTitle" class="font-serif text-4xl md:text-5xl font-semibold text-ink"></h2>
+          <p class="text-xs md:text-sm text-ink-2 mt-3 font-light">
+            Tap any day to open its flashcard
+          </p>
+        </div>
+
+        <!-- Weekday labels -->
+        <div class="grid grid-cols-7 gap-1.5 md:gap-3 mb-2">
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Sun</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Mon</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Tue</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Wed</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Thu</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Fri</div>
+          <div class="text-center text-[10px] md:text-xs font-medium text-ink-3 py-2 uppercase tracking-widest">Sat</div>
+        </div>
+
+        <!-- Calendar grid -->
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 md:gap-3"></div>
+
+        <!-- Legend -->
+        <div class="flex items-center justify-center gap-6 mt-8 text-[11px] text-ink-3">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-gradient-to-br from-sky to-sage"></span>
+            Updated
+          </span>
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full border border-ink-3/50"></span>
+            Not yet
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =================================================================
+       FLASHCARD MODAL
+       ================================================================= -->
+  <div
+    id="modalBackdrop"
+    class="hidden fixed inset-0 z-50 bg-ink/25 backdrop-blur-md items-center justify-center p-4 md:p-8 backdrop-fade"
+    onclick="closeModalBackdrop(event)"
+  >
+    <div class="flip-card w-full max-w-2xl modal-enter" id="flipCard">
+      <div class="flip-card-inner">
+
+        <!-- ============ FRONT ============ -->
+        <div class="flip-card-face bg-cream-2 shadow-soft-xl border border-white relative">
+          <!-- Close -->
+          <button
+            type="button"
+            onclick="closeModal()"
+            aria-label="Close"
+            class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-ink-2 hover:text-ink transition-all shadow-soft border border-white"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+
+          <!-- Scrollable body -->
+          <div class="flip-card-body px-8 pt-8 md:px-10 md:pt-10">
+            <!-- Date -->
+            <div class="mb-6 md:mb-7">
+              <p id="modalDayName" class="text-[11px] text-ink-3 uppercase tracking-[0.3em]"></p>
+              <h2 id="modalDate" class="font-serif text-4xl md:text-5xl font-semibold text-ink mt-1 leading-tight"></h2>
+            </div>
+
+            <!-- Status -->
+            <div id="modalStatus" class="inline-block mb-6 px-3 py-1 text-[11px] rounded-full bg-peach/40 text-ink-2 tracking-wide">
+              Not updated yet
+            </div>
+
+            <!-- What I Did -->
+            <div class="mb-6">
+              <h3 class="text-[13px] font-semibold text-ink flex items-center gap-2 mb-2.5 tracking-wide">
+                <span class="w-6 h-6 rounded-lg bg-sage/55 flex items-center justify-center text-ink/80">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.09 6.26L20 9.27l-4.91 3.57L16.18 19 12 15.77 7.82 19l1.09-6.16L4 9.27l5.91-1.01L12 2z"/></svg>
+                </span>
+                What I Did
+              </h3>
+              <p id="modalWhatIDid" class="text-ink-2 leading-relaxed pl-8 text-[15px] whitespace-pre-line">—</p>
+            </div>
+
+            <!-- What I Learned -->
+            <div class="mb-2">
+              <h3 class="text-[13px] font-semibold text-ink flex items-center gap-2 mb-2.5 tracking-wide">
+                <span class="w-6 h-6 rounded-lg bg-sky/55 flex items-center justify-center text-ink/80">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 2h3v5H19v3h-5.5v12h-3V10H5V7h5.5V2z"/></svg>
+                </span>
+                What I Learned
+              </h3>
+              <p id="modalWhatILearned" class="text-ink-2 leading-relaxed pl-8 text-[15px] whitespace-pre-line">—</p>
+            </div>
+          </div>
+
+          <!-- Pinned footer with flip button -->
+          <div class="flip-card-footer px-8 pb-8 pt-4 md:px-10 md:pb-10 bg-gradient-to-t from-cream-2 via-cream-2 to-transparent">
+            <button
+              type="button"
+              onmousedown="event.preventDefault()"
+              onclick="flipCard(event)"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky to-sage text-white font-medium shadow-soft hover:shadow-soft-lg transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0114.85-3.36L20 7M20 15a9 9 0 01-14.85 3.36L4 17"/>
+              </svg>
+              Flip to see photo
+            </button>
+          </div>
+        </div>
+
+        <!-- ============ BACK ============ -->
+        <div class="flip-card-face flip-card-back bg-cream-2 shadow-soft-xl border border-white relative">
+          <button
+            type="button"
+            onclick="closeModal()"
+            aria-label="Close"
+            class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-ink-2 hover:text-ink transition-all shadow-soft border border-white"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+
+          <!-- Scrollable body -->
+          <div class="flip-card-body px-8 pt-8 md:px-10 md:pt-10">
+            <!-- Photo -->
+            <div
+              id="modalPhotoContainer"
+              class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-sky/20 to-lavender/20 aspect-[4/3] flex items-center justify-center border border-white"
+            >
+              <div id="modalPhotoPlaceholder" class="text-center px-6">
+                <div class="w-14 h-14 rounded-2xl bg-white/70 mx-auto flex items-center justify-center mb-3 shadow-soft">
+                  <svg class="w-6 h-6 text-ink-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <p class="text-xs text-ink-2">No photo yet</p>
+              </div>
+              <img id="modalPhoto" class="hidden w-full h-full object-cover" alt="" />
+            </div>
+
+            <!-- Note -->
+            <div class="mb-2">
+              <h3 class="text-[13px] font-semibold text-ink flex items-center gap-2 mb-2.5 tracking-wide">
+                <span class="w-6 h-6 rounded-lg bg-peach/55 flex items-center justify-center text-ink/80">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.35-7-10a5 5 0 019-3 5 5 0 019 3c0 5.65-7 10-7 10h-4z" opacity=".35"/><path d="M12 21s-7-4.35-7-10a5 5 0 019-3 5 5 0 019 3c0 5.65-7 10-7 10h-4z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+                </span>
+                A Little Note
+              </h3>
+              <p id="modalNote" class="text-ink-2 leading-relaxed italic pl-8 text-[15px] whitespace-pre-line">—</p>
+            </div>
+          </div>
+
+          <!-- Pinned footer -->
+          <div class="flip-card-footer px-8 pb-8 pt-4 md:px-10 md:pb-10 bg-gradient-to-t from-cream-2 via-cream-2 to-transparent">
+            <button
+              type="button"
+              onmousedown="event.preventDefault()"
+              onclick="flipCard(event)"
+              class="w-full py-3.5 rounded-2xl bg-white/90 hover:bg-white text-ink font-medium shadow-soft transition-all flex items-center justify-center gap-2 text-sm border border-cream-3"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0114.85-3.36L20 7M20 15a9 9 0 01-14.85 3.36L4 17"/>
+              </svg>
+              Back to entry
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       FOOTER
+       ================================================================= -->
+  <footer class="max-w-6xl mx-auto px-6 py-10 md:py-12 text-center">
+    <div class="flourish text-[11px] uppercase tracking-[0.3em]">Grace &amp; peace</div>
+  </footer>
+
+  <!-- =================================================================
+       SCRIPT
+       ================================================================= -->
+  <script>
+    /* =====================================================================
+     *  JOURNEY ENTRIES
+     *  ---------------------------------------------------------------------
+     *  Add a day's entry by using the date string "YYYY-MM-DD" as the key.
+     *  Any day NOT listed here automatically shows "Not updated yet".
+     *
+     *  Fields (all optional except the key):
+     *    whatIDid       — what you did that day (string)
+     *    whatILearned   — Bible verses + insights (string)
+     *    photo          — URL or relative path to an image (string)
+     *    note           — a short reflection for the photo side (string)
+     *
+     *  Tip: use \n for new lines, and keep verses in quotes for readability.
+     * ===================================================================== */
+    const journeyEntries = {
+      /* ---------- EXAMPLE (uncomment + edit to use) ----------
+      "2026-05-01": {
+        whatIDid:
+          "Opened this journey with a quiet morning prayer and read Psalm 23.",
+        whatILearned:
+          "Psalm 23:1 — \"The Lord is my shepherd; I shall not want.\"\n" +
+          "He leads gently. I don't need to strive; I can simply follow.",
+        photo: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200",
+        note:  "Morning light through the window. Felt held.",
+      },
+      -------------------------------------------------------- */
+    };
+
+    /* =====================================================================
+     *  MONTH CONFIGURATION
+     *  ===================================================================== */
+    const months = [
+      { name: 'May',    year: 2026, month: 4, days: 31, word: 'Renew',   gradient: 'from-sky/35 to-lavender/25' },
+      { name: 'June',   year: 2026, month: 5, days: 30, word: 'Grow',    gradient: 'from-sage/35 to-sky/25' },
+      { name: 'July',   year: 2026, month: 6, days: 31, word: 'Shine',   gradient: 'from-peach/35 to-sage/25' },
+      { name: 'August', year: 2026, month: 7, days: 31, word: 'Reflect', gradient: 'from-lavender/35 to-peach/25' },
+    ];
+
+    const TOTAL_DAYS = months.reduce((sum, m) => sum + m.days, 0); // 123
+
+    /* =====================================================================
+     *  HELPERS
+     *  ===================================================================== */
+    const pad = (n) => String(n).padStart(2, '0');
+    const dateKey = (y, m0, d) => `${y}-${pad(m0 + 1)}-${pad(d)}`;
+    const todayKey = (() => {
+      const t = new Date();
+      return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+    })();
+
+    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    const hasEntry = (key) => !!journeyEntries[key];
+
+    const countMonthEntries = (m) => {
+      let n = 0;
+      for (let d = 1; d <= m.days; d++) if (hasEntry(dateKey(m.year, m.month, d))) n++;
+      return n;
+    };
+
+    const countTotal = () => months.reduce((s, m) => s + countMonthEntries(m), 0);
+
+    /* =====================================================================
+     *  HEADER PROGRESS
+     *  ===================================================================== */
+    function updateProgress() {
+      const total = countTotal();
+      document.getElementById('overallProgress').textContent = `${total}/${TOTAL_DAYS} days`;
+      const pct = TOTAL_DAYS > 0 ? total / TOTAL_DAYS : 0;
+      document.getElementById('progressPercent').textContent = `${Math.round(pct * 100)}%`;
+      const circ = 2 * Math.PI * 20;
+      document.getElementById('progressCircle').style.strokeDashoffset = circ - circ * pct;
+    }
+
+    /* =====================================================================
+     *  HOME VIEW — month cards with mini calendar previews
+     *  ===================================================================== */
+    function renderMonthCards() {
+      const grid = document.getElementById('monthGrid');
+      grid.innerHTML = months.map((m, i) => {
+        const updated = countMonthEntries(m);
+        const pct = (updated / m.days) * 100;
+        return `
+          <button
+            onclick="showMonth(${i})"
+            class="month-card group text-left bg-white/75 backdrop-blur-sm rounded-[24px] p-6 shadow-soft hover:shadow-soft-lg border border-white overflow-hidden relative"
+          >
+            <div class="absolute inset-0 bg-gradient-to-br ${m.gradient} opacity-70 pointer-events-none"></div>
+            <div class="relative">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <p class="text-[10px] uppercase tracking-[0.3em] text-ink-3">Month ${i + 1}</p>
+                  <h3 class="font-serif text-[2rem] leading-none font-semibold text-ink mt-1">${m.name}</h3>
+                </div>
+                <span class="text-[10px] text-ink-2 uppercase tracking-[0.25em] mt-1.5">${m.word}</span>
+              </div>
+
+              <!-- Mini calendar -->
+              <div id="mini-cal-${i}" class="grid grid-cols-7 gap-[3px] mb-5"></div>
+
+              <!-- Progress -->
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-ink-2">${updated}/${m.days} days</span>
+                <div class="flex-1 mx-3 h-[5px] bg-white/70 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sky to-sage progress-bar-fill rounded-full" style="width:${pct}%"></div>
+                </div>
+                <span class="text-[11px] font-medium text-ink">${Math.round(pct)}%</span>
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Mini calendar dots for each card
+      months.forEach((m, i) => {
+        const mini = document.getElementById(`mini-cal-${i}`);
+        const firstDay = new Date(m.year, m.month, 1).getDay();
+        let html = '';
+        for (let d = 0; d < firstDay; d++) html += `<div></div>`;
+        for (let d = 1; d <= m.days; d++) {
+          const key = dateKey(m.year, m.month, d);
+          const filled = hasEntry(key);
+          html += `
+            <div class="mini-day rounded-full ${filled
+              ? 'bg-gradient-to-br from-sky to-sage shadow-[0_0_0_1px_rgba(255,255,255,0.6)]'
+              : 'bg-white/60 border border-white'}">
+            </div>`;
+        }
+        mini.innerHTML = html;
+      });
+    }
+
+    /* =====================================================================
+     *  VIEW SWITCHING
+     *  ===================================================================== */
+    function showHome() {
+      document.getElementById('homeView').classList.remove('hidden');
+      document.getElementById('calendarView').classList.add('hidden');
+      document.getElementById('homeView').classList.remove('fade-in-up');
+      void document.getElementById('homeView').offsetWidth; // force reflow to replay animation
+      document.getElementById('homeView').classList.add('fade-in-up');
+      renderMonthCards();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showMonth(index) {
+      const m = months[index];
+      document.getElementById('homeView').classList.add('hidden');
+      const view = document.getElementById('calendarView');
+      view.classList.remove('hidden');
+      view.classList.remove('fade-in-up');
+      void view.offsetWidth;
+      view.classList.add('fade-in-up');
+
+      document.getElementById('calMonthEyebrow').textContent = m.word;
+      document.getElementById('calMonthTitle').textContent = `${m.name} ${m.year}`;
+      const updated = countMonthEntries(m);
+      document.getElementById('calMonthProgress').textContent = `${updated}/${m.days} days updated`;
+
+      const grid = document.getElementById('calendarGrid');
+      const firstDay = new Date(m.year, m.month, 1).getDay();
+      let html = '';
+      for (let d = 0; d < firstDay; d++) html += `<div></div>`;
+      for (let d = 1; d <= m.days; d++) {
+        const key = dateKey(m.year, m.month, d);
+        const filled = hasEntry(key);
+        const isToday = key === todayKey;
+        html += `
+          <button
+            onclick="openDay('${key}')"
+            class="day-cell rounded-2xl bg-white/70 hover:bg-white border border-white flex flex-col items-center justify-center relative shadow-soft ${filled ? 'has-entry' : ''} ${isToday ? 'is-today' : ''}"
+            aria-label="${m.name} ${d}"
+          >
+            <span class="text-base md:text-lg font-medium text-ink">${d}</span>
+            ${filled
+              ? '<span class="absolute bottom-1.5 md:bottom-2 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-sky to-sage"></span>'
+              : ''}
+          </button>`;
+      }
+      grid.innerHTML = html;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =====================================================================
+     *  MODAL — flashcard
+     *  ===================================================================== */
+    let modalCurrentKey = null;
+
+    function openDay(key) {
+      modalCurrentKey = key;
+      const [y, mo, d] = key.split('-').map(Number);
+      const dateObj = new Date(y, mo - 1, d);
+
+      document.getElementById('modalDayName').textContent = DAY_NAMES[dateObj.getDay()];
+      document.getElementById('modalDate').textContent = `${MONTH_NAMES[mo - 1]} ${d}`;
+
+      const entry = journeyEntries[key];
+      const statusEl = document.getElementById('modalStatus');
+      const photoImg = document.getElementById('modalPhoto');
+      const photoPh  = document.getElementById('modalPhotoPlaceholder');
+
+      if (entry) {
+        statusEl.textContent = 'Updated';
+        statusEl.className = 'inline-block mb-6 px-3 py-1 text-[11px] rounded-full bg-sage/45 text-ink tracking-wide';
+        document.getElementById('modalWhatIDid').textContent    = entry.whatIDid     || '—';
+        document.getElementById('modalWhatILearned').textContent = entry.whatILearned || '—';
+        document.getElementById('modalNote').textContent        = entry.note         || '—';
+
+        if (entry.photo) {
+          photoImg.src = entry.photo;
+          photoImg.classList.remove('hidden');
+          photoPh.classList.add('hidden');
+        } else {
+          photoImg.classList.add('hidden');
+          photoPh.classList.remove('hidden');
+        }
+      } else {
+        statusEl.textContent = 'Not updated yet';
+        statusEl.className = 'inline-block mb-6 px-3 py-1 text-[11px] rounded-full bg-peach/40 text-ink-2 tracking-wide';
+        document.getElementById('modalWhatIDid').textContent     = '—';
+        document.getElementById('modalWhatILearned').textContent = '—';
+        document.getElementById('modalNote').textContent         = '—';
+        photoImg.classList.add('hidden');
+        photoPh.classList.remove('hidden');
+      }
+
+      // Always start on the front side
+      document.getElementById('flipCard').classList.remove('flipped');
+
+      const bd = document.getElementById('modalBackdrop');
+      bd.classList.remove('hidden');
+      bd.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const bd = document.getElementById('modalBackdrop');
+      bd.classList.add('hidden');
+      bd.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalBackdrop(e) {
+      if (e.target.id === 'modalBackdrop') closeModal();
+    }
+
+    function flipCard(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const card = document.getElementById('flipCard');
+      // Reset scroll in both face bodies so content always starts from the top.
+      card.querySelectorAll('.flip-card-body').forEach((el) => { el.scrollTop = 0; });
+      card.classList.toggle('flipped');
+      // Drop focus so the browser doesn't try to scroll anything into view.
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+    }
+
+    /* =====================================================================
+     *  KEYBOARD
+     *  ===================================================================== */
+    document.addEventListener('keydown', (e) => {
+      const modalOpen = !document.getElementById('modalBackdrop').classList.contains('hidden');
+      if (!modalOpen) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(e); }
+    });
+
+    /* =====================================================================
+     *  INIT
+     *  ===================================================================== */
+    renderMonthCards();
+    updateProgress();
+  </script>
+</body>
+</html>
