@@ -134,6 +134,17 @@
     }
     .floaty { animation: floaty 4s ease-in-out infinite; }
 
+    @keyframes pulseDot {
+      0%   { box-shadow: 0 0 0 0   rgba(165, 214, 255, 0.7); }
+      70%  { box-shadow: 0 0 0 8px rgba(165, 214, 255, 0);   }
+      100% { box-shadow: 0 0 0 0   rgba(165, 214, 255, 0);   }
+    }
+    .pulse-dot { animation: pulseDot 1.6s ease-out infinite; }
+
+    .updates-collapsed { max-height: 0; overflow: hidden; }
+    .updates-expanded  { max-height: 1200px; }
+    .updates-body { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
     /* =====================================================================
        COMPONENTS
        ===================================================================== */
@@ -246,6 +257,9 @@
          HOME VIEW — Month grid
          ========================= -->
     <section id="homeView" class="fade-in-up">
+      <!-- What's new panel -->
+      <div id="updatesPanel" class="mb-8 md:mb-10"></div>
+
       <!-- Month cards -->
       <div id="monthGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"></div>
     </section>
@@ -491,6 +505,27 @@
     ]);
 
     /* =====================================================================
+     *  UPDATES LOG
+     *  ---------------------------------------------------------------------
+     *  Each time you add / edit days and push, drop a new entry at the TOP
+     *  of this array. It'll show up as "New update" at the top of the page.
+     *
+     *  Fields:
+     *    id       — any unique string (once used, don't reuse)
+     *    pushedAt — "YYYY-MM-DD" date of the push (for sorting + display)
+     *    dates    — array of entry dates added/edited, e.g. ["2026-05-03"]
+     *    note     — (optional) short description
+     * ===================================================================== */
+    const updates = [
+      {
+        id:       "u-20260503-1",
+        pushedAt: "2026-05-03",
+        dates:    ["2026-05-03"],
+        note:     "First entry — testing things out.",
+      },
+    ];
+
+    /* =====================================================================
      *  MONTH CONFIGURATION
      *  ===================================================================== */
     const months = [
@@ -545,6 +580,141 @@
       document.getElementById('progressPercent').textContent = `${Math.round(pct * 100)}%`;
       const circ = 2 * Math.PI * 20;
       document.getElementById('progressCircle').style.strokeDashoffset = circ - circ * pct;
+    }
+
+    /* =====================================================================
+     *  UPDATES PANEL
+     *  ===================================================================== */
+    const SEEN_STORAGE_KEY = 'faithJourney.seenUpdateIds';
+
+    const getSeenUpdateIds = () => {
+      try {
+        return new Set(JSON.parse(localStorage.getItem(SEEN_STORAGE_KEY) || '[]'));
+      } catch { return new Set(); }
+    };
+    const saveSeenUpdateIds = (set) => {
+      try { localStorage.setItem(SEEN_STORAGE_KEY, JSON.stringify([...set])); } catch {}
+    };
+
+    const formatPushedAt = (iso) => {
+      const [y, mo, d] = iso.split('-').map(Number);
+      return `${MONTH_NAMES[mo - 1]} ${d}`;
+    };
+    const formatDateChip = (key) => {
+      const [y, mo, d] = key.split('-').map(Number);
+      return `${MONTH_NAMES[mo - 1].slice(0, 3)} ${d}`;
+    };
+
+    let updatesExpanded = false;
+
+    function renderUpdatesPanel() {
+      const panel = document.getElementById('updatesPanel');
+      if (!updates || updates.length === 0) { panel.innerHTML = ''; return; }
+
+      // Newest first by pushedAt, then by array order for ties.
+      const sorted = [...updates].sort((a, b) => (a.pushedAt < b.pushedAt ? 1 : -1));
+      const seen    = getSeenUpdateIds();
+      const unseen  = sorted.filter((u) => !seen.has(u.id));
+      const hasNew  = unseen.length > 0;
+      const latest  = sorted[0];
+      const rest    = sorted.slice(1);
+
+      const renderChips = (u) => u.dates.map((key) => {
+        const locked = isLocked(key);
+        const filled = hasEntry(key);
+        const base = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] transition-all';
+        if (locked) {
+          return `<span class="${base} bg-white/60 text-ink-3 border border-dashed border-ink-3/30" title="Unavailable">${formatDateChip(key)}</span>`;
+        }
+        const tone = filled
+          ? 'bg-gradient-to-r from-sky/25 to-sage/25 text-ink border border-white hover:from-sky/35 hover:to-sage/35'
+          : 'bg-white/80 text-ink-2 border border-white hover:bg-white';
+        return `
+          <button
+            type="button"
+            onclick="openDay('${key}')"
+            class="${base} ${tone} shadow-soft"
+          >${formatDateChip(key)}</button>
+        `;
+      }).join('');
+
+      const renderRow = (u, idx) => {
+        const isUnseen = !seen.has(u.id);
+        return `
+          <div class="flex items-start gap-3 ${idx > 0 ? 'pt-4 mt-4 border-t border-cream-3/50' : ''}">
+            <div class="mt-1 relative">
+              <span class="block w-2 h-2 rounded-full ${isUnseen ? 'bg-sky pulse-dot' : 'bg-ink-3/40'}"></span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[11px] uppercase tracking-[0.2em] text-ink-3">${formatPushedAt(u.pushedAt)}</span>
+                ${isUnseen ? '<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky/30 text-ink font-medium tracking-wide">NEW</span>' : ''}
+              </div>
+              ${u.note ? `<p class="text-sm text-ink mt-1 leading-relaxed">${u.note}</p>` : ''}
+              <div class="flex flex-wrap gap-1.5 mt-2">${renderChips(u)}</div>
+            </div>
+          </div>
+        `;
+      };
+
+      panel.innerHTML = `
+        <div class="bg-white/75 backdrop-blur-sm rounded-[22px] p-5 md:p-6 shadow-soft border border-white">
+          <!-- Header row -->
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky/50 to-sage/40 flex items-center justify-center shadow-soft relative flex-shrink-0">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a6 6 0 00-6 6v3.5L4 15v1h16v-1l-2-3.5V8a6 6 0 00-6-6zm0 20a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22z"/></svg>
+                ${hasNew ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-peach border-2 border-white pulse-dot"></span>' : ''}
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3">What's new</p>
+                <p class="text-sm text-ink mt-0.5 truncate">
+                  ${hasNew
+                    ? `<span class="font-medium">${unseen.length} new update${unseen.length > 1 ? 's' : ''}</span> · last on ${formatPushedAt(latest.pushedAt)}`
+                    : `Last update on ${formatPushedAt(latest.pushedAt)}`}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              ${hasNew
+                ? '<button type="button" onclick="markUpdatesSeen()" class="text-[11px] text-ink-2 hover:text-ink transition-colors px-3 py-1.5 rounded-full hover:bg-cream-3/60">Mark as read</button>'
+                : ''}
+              <button
+                type="button"
+                onclick="toggleUpdatesPanel()"
+                aria-label="Toggle updates"
+                class="w-8 h-8 rounded-full bg-white hover:bg-cream-2 flex items-center justify-center text-ink-2 transition-all shadow-soft border border-white"
+              >
+                <svg class="w-4 h-4 transition-transform ${updatesExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Latest row (always visible) -->
+          <div class="mt-4">${renderRow(latest, 0)}</div>
+
+          <!-- Older updates (expandable) -->
+          <div class="updates-body ${updatesExpanded ? 'updates-expanded' : 'updates-collapsed'}">
+            ${rest.map((u, i) => renderRow(u, i + 1)).join('')}
+            ${rest.length === 0 ? '' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleUpdatesPanel() {
+      updatesExpanded = !updatesExpanded;
+      renderUpdatesPanel();
+    }
+
+    function markUpdatesSeen() {
+      const seen = getSeenUpdateIds();
+      updates.forEach((u) => seen.add(u.id));
+      saveSeenUpdateIds(seen);
+      renderUpdatesPanel();
     }
 
     /* =====================================================================
@@ -617,6 +787,7 @@
       document.getElementById('homeView').classList.remove('fade-in-up');
       void document.getElementById('homeView').offsetWidth; // force reflow to replay animation
       document.getElementById('homeView').classList.add('fade-in-up');
+      renderUpdatesPanel();
       renderMonthCards();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -766,6 +937,7 @@
     /* =====================================================================
      *  INIT
      *  ===================================================================== */
+    renderUpdatesPanel();
     renderMonthCards();
     updateProgress();
   </script>
