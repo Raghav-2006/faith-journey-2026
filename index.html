@@ -331,10 +331,12 @@
        ================================================================= -->
   <div
     id="modalBackdrop"
-    class="hidden fixed inset-0 z-50 bg-ink/25 backdrop-blur-md items-center justify-center p-4 md:p-8 overflow-y-auto backdrop-fade"
+    class="hidden fixed inset-0 z-50 bg-ink/25 backdrop-blur-md p-4 md:p-8 overflow-y-auto backdrop-fade"
     onclick="closeModalBackdrop(event)"
   >
-    <div class="modal-enter w-full max-w-2xl my-auto">
+    <!-- Grid cell that always vertically centers the card, even with scroll -->
+    <div class="min-h-full grid place-items-center">
+    <div class="modal-enter w-full max-w-2xl">
     <div class="flip-card" id="flipCard">
       <div class="flip-card-inner">
 
@@ -465,6 +467,7 @@
       </div>
     </div>
     </div>
+    </div>
   </div>
 
   <!-- =================================================================
@@ -498,6 +501,10 @@
           "hello hayoung, I miss you. I dont know if you would ever look at this here but i miss you lots.",
         whatILearned:
           "If you ever get free and wanna watch something i recommend cyberpunk edgerunners anime, its a very good story",
+        photo:
+          "https://4kwallpapers.com/images/wallpapers/cyberpunk-3840x2160-16145.jpg",
+        note:
+          "David and Lucy — the show that made me cry a lot. trust me on this one.",
       },
     };
 
@@ -525,6 +532,12 @@
      *    note     — (optional) short description
      * ===================================================================== */
     const updates = [
+      {
+        id:       "u-20260503-3",
+        pushedAt: "2026-05-03",
+        dates:    ["2026-05-03"],
+        note:     "Added an Edgerunners photo on the back of May 3.",
+      },
       {
         id:       "u-20260503-2",
         pushedAt: "2026-05-03",
@@ -911,14 +924,15 @@
 
       const bd = document.getElementById('modalBackdrop');
       bd.classList.remove('hidden');
-      bd.classList.add('flex');
+      // Reset the backdrop's own scroll so a previously-opened tall card
+      // doesn't leave us mid-scroll the next time we open one.
+      bd.scrollTop = 0;
       document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
       const bd = document.getElementById('modalBackdrop');
       bd.classList.add('hidden');
-      bd.classList.remove('flex');
       document.body.style.overflow = '';
     }
 
