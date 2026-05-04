@@ -78,8 +78,8 @@
     .flip-card {
       perspective: 1600px;
       width: 100%;
-      height: min(640px, 86vh);      /* fallback for older browsers */
-      height: min(640px, 86dvh);     /* preferred: matches visible viewport */
+      height: min(620px, 82vh);      /* fallback for older browsers */
+      height: min(620px, 82dvh);     /* preferred: matches visible viewport */
       flex-shrink: 0;                /* never let flex parent squash the card */
     }
     .flip-card-inner {
@@ -427,7 +427,7 @@
             <!-- Photo -->
             <div
               id="modalPhotoContainer"
-              class="mb-6 rounded-2xl overflow-hidden bg-gradient-to-br from-sky/20 to-lavender/20 aspect-[4/3] flex items-center justify-center border border-white"
+              class="mb-5 rounded-2xl overflow-hidden bg-gradient-to-br from-sky/20 to-lavender/20 aspect-[16/10] flex items-center justify-center border border-white"
             >
               <div id="modalPhotoPlaceholder" class="text-center px-6">
                 <div class="w-14 h-14 rounded-2xl bg-white/70 mx-auto flex items-center justify-center mb-3 shadow-soft">
@@ -1330,13 +1330,16 @@
     function flipCard(e) {
       if (e && e.preventDefault) e.preventDefault();
       const card = document.getElementById('flipCard');
-      // Reset scroll in both face bodies so content always starts from the top.
-      card.querySelectorAll('.flip-card-body').forEach((el) => { el.scrollTop = 0; });
-      card.classList.toggle('flipped');
-      // Drop focus so the browser doesn't try to scroll anything into view.
+      // Drop focus FIRST so the browser has nothing to scroll into view.
       if (document.activeElement && document.activeElement.blur) {
         document.activeElement.blur();
       }
+      // Reset scroll on both the backdrop and both face bodies — guarantees
+      // the next side always starts at the top, cleanly centered.
+      const bd = document.getElementById('modalBackdrop');
+      if (bd) bd.scrollTop = 0;
+      card.querySelectorAll('.flip-card-body').forEach((el) => { el.scrollTop = 0; });
+      card.classList.toggle('flipped');
     }
 
     /* =====================================================================
