@@ -263,7 +263,10 @@
          ========================= -->
     <section id="homeView" class="fade-in-up">
       <!-- What's new panel -->
-      <div id="updatesPanel" class="mb-8 md:mb-10"></div>
+      <div id="updatesPanel" class="mb-6 md:mb-8"></div>
+
+      <!-- Reading plan / expected timeline -->
+      <div id="readingPlanPanel" class="mb-8 md:mb-10"></div>
 
       <!-- Month cards -->
       <div id="monthGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"></div>
@@ -531,7 +534,181 @@
      *    dates    — array of entry dates added/edited, e.g. ["2026-05-03"]
      *    note     — (optional) short description
      * ===================================================================== */
+    /* =====================================================================
+     *  READING PLAN
+     *  ---------------------------------------------------------------------
+     *  Shown on the home page as an "Expected Timeline" card. Each day's
+     *  date links to that day's flashcard in the calendar.
+     * ===================================================================== */
+    const readingPlan = {
+      title:    "Bible Reading Schedule",
+      subtitle: "May 4 – Aug 10, 2026 · 99 days · ~12 chapters/day",
+      intro:    "The Bible has 1,189 chapters total. This plan takes you straight through Genesis to Revelation in canonical order, averaging 12 chapters a day, with two buffer days at the end. If you fall behind, use those.",
+      tip:      "At ~12 chapters/day, plan on 45–60 minutes of reading. Pick a fixed time of day and stick to it — consistency matters more than speed.",
+      sections: [
+        {
+          title: "Pentateuch",
+          range: "Days 1–15",
+          days: [
+            { n:  1, date: "2026-05-04", reading: "Genesis 1–12" },
+            { n:  2, date: "2026-05-05", reading: "Genesis 13–25" },
+            { n:  3, date: "2026-05-06", reading: "Genesis 26–37" },
+            { n:  4, date: "2026-05-07", reading: "Genesis 38–50" },
+            { n:  5, date: "2026-05-08", reading: "Exodus 1–13" },
+            { n:  6, date: "2026-05-09", reading: "Exodus 14–26" },
+            { n:  7, date: "2026-05-10", reading: "Exodus 27–40" },
+            { n:  8, date: "2026-05-11", reading: "Leviticus 1–13" },
+            { n:  9, date: "2026-05-12", reading: "Leviticus 14–27" },
+            { n: 10, date: "2026-05-13", reading: "Numbers 1–12" },
+            { n: 11, date: "2026-05-14", reading: "Numbers 13–24" },
+            { n: 12, date: "2026-05-15", reading: "Numbers 25–36" },
+            { n: 13, date: "2026-05-16", reading: "Deuteronomy 1–12" },
+            { n: 14, date: "2026-05-17", reading: "Deuteronomy 13–24" },
+            { n: 15, date: "2026-05-18", reading: "Deuteronomy 25–34" },
+          ],
+        },
+        {
+          title: "Historical Books",
+          range: "Days 16–36",
+          days: [
+            { n: 16, date: "2026-05-19", reading: "Joshua 1–12" },
+            { n: 17, date: "2026-05-20", reading: "Joshua 13–24" },
+            { n: 18, date: "2026-05-21", reading: "Judges 1–12" },
+            { n: 19, date: "2026-05-22", reading: "Judges 13–21 + Ruth 1–3" },
+            { n: 20, date: "2026-05-23", reading: "Ruth 4 + 1 Samuel 1–11" },
+            { n: 21, date: "2026-05-24", reading: "1 Samuel 12–23" },
+            { n: 22, date: "2026-05-25", reading: "1 Samuel 24–31 + 2 Samuel 1–4" },
+            { n: 23, date: "2026-05-26", reading: "2 Samuel 5–16" },
+            { n: 24, date: "2026-05-27", reading: "2 Samuel 17–24 + 1 Kings 1–4" },
+            { n: 25, date: "2026-05-28", reading: "1 Kings 5–16" },
+            { n: 26, date: "2026-05-29", reading: "1 Kings 17–22 + 2 Kings 1–6" },
+            { n: 27, date: "2026-05-30", reading: "2 Kings 7–18" },
+            { n: 28, date: "2026-05-31", reading: "2 Kings 19–25 + 1 Chronicles 1–5" },
+            { n: 29, date: "2026-06-01", reading: "1 Chronicles 6–17" },
+            { n: 30, date: "2026-06-02", reading: "1 Chronicles 18–29" },
+            { n: 31, date: "2026-06-03", reading: "2 Chronicles 1–12" },
+            { n: 32, date: "2026-06-04", reading: "2 Chronicles 13–24" },
+            { n: 33, date: "2026-06-05", reading: "2 Chronicles 25–36" },
+            { n: 34, date: "2026-06-06", reading: "Ezra 1–10 + Nehemiah 1–2" },
+            { n: 35, date: "2026-06-07", reading: "Nehemiah 3–13" },
+            { n: 36, date: "2026-06-08", reading: "Esther 1–10 + Job 1–2" },
+          ],
+        },
+        {
+          title: "Wisdom & Poetry",
+          range: "Days 37–55",
+          days: [
+            { n: 37, date: "2026-06-09", reading: "Job 3–14" },
+            { n: 38, date: "2026-06-10", reading: "Job 15–26" },
+            { n: 39, date: "2026-06-11", reading: "Job 27–38" },
+            { n: 40, date: "2026-06-12", reading: "Job 39–42 + Psalms 1–8" },
+            { n: 41, date: "2026-06-13", reading: "Psalms 9–22" },
+            { n: 42, date: "2026-06-14", reading: "Psalms 23–37" },
+            { n: 43, date: "2026-06-15", reading: "Psalms 38–52" },
+            { n: 44, date: "2026-06-16", reading: "Psalms 53–67" },
+            { n: 45, date: "2026-06-17", reading: "Psalms 68–79" },
+            { n: 46, date: "2026-06-18", reading: "Psalms 80–95" },
+            { n: 47, date: "2026-06-19", reading: "Psalms 96–111" },
+            { n: 48, date: "2026-06-20", reading: "Psalms 112–119", aside: "119 is long — give yourself extra time" },
+            { n: 49, date: "2026-06-21", reading: "Psalms 120–138" },
+            { n: 50, date: "2026-06-22", reading: "Psalms 139–150" },
+            { n: 51, date: "2026-06-23", reading: "Proverbs 1–12" },
+            { n: 52, date: "2026-06-24", reading: "Proverbs 13–24" },
+            { n: 53, date: "2026-06-25", reading: "Proverbs 25–31 + Ecclesiastes 1–5" },
+            { n: 54, date: "2026-06-26", reading: "Ecclesiastes 6–12 + Song of Solomon 1–5" },
+            { n: 55, date: "2026-06-27", reading: "Song of Solomon 6–8 + Isaiah 1–9" },
+          ],
+        },
+        {
+          title: "Major Prophets",
+          range: "Days 56–70",
+          days: [
+            { n: 56, date: "2026-06-28", reading: "Isaiah 10–21" },
+            { n: 57, date: "2026-06-29", reading: "Isaiah 22–33" },
+            { n: 58, date: "2026-06-30", reading: "Isaiah 34–45" },
+            { n: 59, date: "2026-07-01", reading: "Isaiah 46–57" },
+            { n: 60, date: "2026-07-02", reading: "Isaiah 58–66 + Jeremiah 1–3" },
+            { n: 61, date: "2026-07-03", reading: "Jeremiah 4–15" },
+            { n: 62, date: "2026-07-04", reading: "Jeremiah 16–27" },
+            { n: 63, date: "2026-07-05", reading: "Jeremiah 28–39" },
+            { n: 64, date: "2026-07-06", reading: "Jeremiah 40–51" },
+            { n: 65, date: "2026-07-07", reading: "Jeremiah 52 + Lamentations 1–5 + Ezekiel 1–6" },
+            { n: 66, date: "2026-07-08", reading: "Ezekiel 7–18" },
+            { n: 67, date: "2026-07-09", reading: "Ezekiel 19–30" },
+            { n: 68, date: "2026-07-10", reading: "Ezekiel 31–42" },
+            { n: 69, date: "2026-07-11", reading: "Ezekiel 43–48 + Daniel 1–6" },
+            { n: 70, date: "2026-07-12", reading: "Daniel 7–12 + Hosea 1–6" },
+          ],
+        },
+        {
+          title: "Minor Prophets",
+          range: "Days 71–75",
+          days: [
+            { n: 71, date: "2026-07-13", reading: "Hosea 7–14 + Joel 1–3 + Amos 1" },
+            { n: 72, date: "2026-07-14", reading: "Amos 2–9 + Obadiah + Jonah 1–3" },
+            { n: 73, date: "2026-07-15", reading: "Jonah 4 + Micah 1–7 + Nahum 1–3 + Habakkuk 1" },
+            { n: 74, date: "2026-07-16", reading: "Habakkuk 2–3 + Zephaniah 1–3 + Haggai 1–2 + Zechariah 1–5" },
+            { n: 75, date: "2026-07-17", reading: "Zechariah 6–14 + Malachi 1–3" },
+          ],
+        },
+        {
+          title: "Gospels & Acts",
+          range: "Days 76–85",
+          days: [
+            { n: 76, date: "2026-07-18", reading: "Malachi 4 + Matthew 1–11" },
+            { n: 77, date: "2026-07-19", reading: "Matthew 12–23" },
+            { n: 78, date: "2026-07-20", reading: "Matthew 24–28 + Mark 1–7" },
+            { n: 79, date: "2026-07-21", reading: "Mark 8–16 + Luke 1–3" },
+            { n: 80, date: "2026-07-22", reading: "Luke 4–15" },
+            { n: 81, date: "2026-07-23", reading: "Luke 16–24 + John 1–3" },
+            { n: 82, date: "2026-07-24", reading: "John 4–15" },
+            { n: 83, date: "2026-07-25", reading: "John 16–21 + Acts 1–6" },
+            { n: 84, date: "2026-07-26", reading: "Acts 7–18" },
+            { n: 85, date: "2026-07-27", reading: "Acts 19–28 + Romans 1–2" },
+          ],
+        },
+        {
+          title: "Epistles & Revelation",
+          range: "Days 86–97",
+          days: [
+            { n: 86, date: "2026-07-28", reading: "Romans 3–14" },
+            { n: 87, date: "2026-07-29", reading: "Romans 15–16 + 1 Corinthians 1–10" },
+            { n: 88, date: "2026-07-30", reading: "1 Corinthians 11–16 + 2 Corinthians 1–6" },
+            { n: 89, date: "2026-07-31", reading: "2 Corinthians 7–13 + Galatians 1–5" },
+            { n: 90, date: "2026-08-01", reading: "Galatians 6 + Ephesians 1–6 + Philippians 1–4 + Colossians 1" },
+            { n: 91, date: "2026-08-02", reading: "Colossians 2–4 + 1 Thessalonians 1–5 + 2 Thessalonians 1–3 + 1 Timothy 1" },
+            { n: 92, date: "2026-08-03", reading: "1 Timothy 2–6 + 2 Timothy 1–4 + Titus 1–3" },
+            { n: 93, date: "2026-08-04", reading: "Philemon + Hebrews 1–11" },
+            { n: 94, date: "2026-08-05", reading: "Hebrews 12–13 + James 1–5 + 1 Peter 1–5" },
+            { n: 95, date: "2026-08-06", reading: "2 Peter 1–3 + 1 John 1–5 + 2 John + 3 John + Jude" },
+            { n: 96, date: "2026-08-07", reading: "Revelation 1–12" },
+            { n: 97, date: "2026-08-08", reading: "Revelation 13–22" },
+          ],
+        },
+        {
+          title: "Buffer Days",
+          range: "Days 98–99",
+          days: [
+            { n: 98, date: "2026-08-09", reading: "Catch-up day", buffer: true },
+            { n: 99, date: "2026-08-10", reading: "Catch-up day / reflect on what stuck with you", buffer: true },
+          ],
+        },
+      ],
+      notes: [
+        { title: "Densest stretches",   text: "Numbers, Leviticus, the genealogies in Chronicles, and Ezekiel's temple chapters (40–48) are the slowest reading. Don't try to rush — just stay on schedule." },
+        { title: "Easiest stretches",   text: "Narrative books (Genesis, Samuel, Kings, the Gospels, Acts) read fast. You may finish those days early." },
+        { title: "If you fall behind",  text: "Don't double-up on the next day. Use a buffer day, or trim a day off the Psalms section (you can read several short Psalms quickly)." },
+        { title: "Translation",         text: "If you want fast readability, NLT or NIV. For something more literary, ESV or NRSV. KJV will slow you down — pick one of the others if speed is important." },
+      ],
+    };
+
     const updates = [
+      {
+        id:       "u-20260503-4",
+        pushedAt: "2026-05-03",
+        dates:    [],
+        note:     "Added the Bible reading timeline (May 4 – Aug 10) on the home page.",
+      },
       {
         id:       "u-20260503-3",
         pushedAt: "2026-05-03",
@@ -745,6 +922,221 @@
     }
 
     /* =====================================================================
+     *  READING PLAN PANEL
+     *  ===================================================================== */
+    let readingPlanExpanded = false;
+
+    const allPlanDays = () => readingPlan.sections.flatMap((s) => s.days);
+
+    // Find the reading for today — or, if today is before / after the plan,
+    // return the nearest context (first day, last day, or null).
+    function getPlanContext() {
+      const all = allPlanDays();
+      const todayIdx = all.findIndex((d) => d.date === todayKey);
+      if (todayIdx !== -1) return { kind: 'today', day: all[todayIdx] };
+      if (todayKey < all[0].date) return { kind: 'upcoming', day: all[0] };
+      if (todayKey > all[all.length - 1].date) return { kind: 'done', day: all[all.length - 1] };
+      // Today is mid-plan but the dates skipped (shouldn't happen) — grab next
+      const next = all.find((d) => d.date > todayKey);
+      return next ? { kind: 'upcoming', day: next } : { kind: 'done', day: all[all.length - 1] };
+    }
+
+    const DOW_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    function dowShort(iso) {
+      const [y, mo, d] = iso.split('-').map(Number);
+      return DOW_SHORT[new Date(y, mo - 1, d).getDay()];
+    }
+    function formatDateShort(iso) {
+      const [y, mo, d] = iso.split('-').map(Number);
+      return `${MONTH_NAMES[mo - 1].slice(0, 3)} ${d}`;
+    }
+
+    function renderReadingPlan() {
+      const panel = document.getElementById('readingPlanPanel');
+      const ctx = getPlanContext();
+
+      // Featured row (always visible)
+      const featured = ctx.day;
+      const featuredLabel =
+        ctx.kind === 'today'    ? 'Today'
+      : ctx.kind === 'upcoming' ? (featured.date > todayKey ? 'Up next' : 'Starts')
+      :                            'Wrapped up';
+
+      // Build expanded body grouped by section
+      const sectionsHtml = readingPlan.sections.map((sec) => {
+        const rows = sec.days.map((d) => {
+          const isToday  = d.date === todayKey;
+          const isPast   = d.date < todayKey;
+          const locked   = isLocked(d.date);
+          const filled   = hasEntry(d.date);
+          const canOpen  = !locked;
+
+          const stateCls = isToday
+            ? 'bg-gradient-to-r from-sky/25 to-sage/20 border border-white'
+            : isPast
+              ? 'bg-white/50 opacity-75'
+              : 'bg-white/70';
+
+          const interact = canOpen
+            ? `onclick="openDay('${d.date}')" class="w-full text-left cursor-pointer hover:bg-white transition-colors"`
+            : `class="w-full text-left cursor-not-allowed"`;
+
+          return `
+            <${canOpen ? 'button type="button"' : 'div'} ${interact}
+              ${canOpen ? '' : 'aria-disabled="true"'}
+              data-day-id="plan-day-${d.n}"
+            >
+              <div class="grid grid-cols-[auto_auto_1fr] gap-3 md:gap-4 items-center px-4 py-2.5 rounded-xl ${stateCls} border border-transparent">
+                <span class="text-[11px] font-medium text-ink-3 w-8 text-right tabular-nums">${d.n}</span>
+                <span class="flex items-baseline gap-1.5 min-w-[5rem]">
+                  <span class="text-[13px] font-semibold text-ink tabular-nums">${formatDateShort(d.date)}</span>
+                  <span class="text-[10px] uppercase tracking-widest text-ink-3">${dowShort(d.date)}</span>
+                </span>
+                <span class="text-[13px] text-ink-2 leading-snug">
+                  ${d.reading}${d.aside ? `<span class="italic text-ink-3"> · ${d.aside}</span>` : ''}
+                  ${isToday ? '<span class="ml-2 text-[10px] uppercase tracking-[0.2em] text-ink font-semibold">Today</span>' : ''}
+                  ${filled ? '<span class="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-br from-sky to-sage align-middle" title="Journaled"></span>' : ''}
+                  ${locked ? '<span class="ml-2 text-[10px] uppercase tracking-[0.2em] text-ink-3">Locked</span>' : ''}
+                </span>
+              </div>
+            </${canOpen ? 'button' : 'div'}>
+          `;
+        }).join('');
+
+        return `
+          <div class="mb-5 last:mb-0">
+            <div class="flex items-baseline justify-between mb-2 px-1">
+              <h4 class="font-serif text-lg text-ink">${sec.title}</h4>
+              <span class="text-[10px] uppercase tracking-[0.25em] text-ink-3">${sec.range}</span>
+            </div>
+            <div class="space-y-1">${rows}</div>
+          </div>
+        `;
+      }).join('');
+
+      const notesHtml = readingPlan.notes.map((n) => `
+        <div class="mb-3 last:mb-0">
+          <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3 mb-0.5">${n.title}</p>
+          <p class="text-[13px] text-ink-2 leading-relaxed">${n.text}</p>
+        </div>
+      `).join('');
+
+      panel.innerHTML = `
+        <div class="bg-white/75 backdrop-blur-sm rounded-[22px] shadow-soft border border-white overflow-hidden">
+          <!-- Header -->
+          <div class="p-5 md:p-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sage/50 to-sky/40 flex items-center justify-center shadow-soft flex-shrink-0">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6a3 3 0 013 3v13a2 2 0 00-2-2H4V4zm16 0h-6a3 3 0 00-3 3v13a2 2 0 012-2h7V4z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3">Expected timeline</p>
+                <p class="text-sm text-ink mt-0.5 truncate">${readingPlan.title} · ${readingPlan.sections.length} sections</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              ${ctx.kind !== 'done' ? `
+                <button
+                  type="button"
+                  onclick="jumpToTodayInPlan()"
+                  class="hidden md:inline-flex text-[11px] text-ink-2 hover:text-ink transition-colors px-3 py-1.5 rounded-full hover:bg-cream-3/60"
+                >Jump to ${ctx.kind === 'today' ? 'today' : 'start'}</button>
+              ` : ''}
+              <button
+                type="button"
+                onclick="toggleReadingPlan()"
+                aria-label="Toggle timeline"
+                class="w-8 h-8 rounded-full bg-white hover:bg-cream-2 flex items-center justify-center text-ink-2 transition-all shadow-soft border border-white"
+              >
+                <svg class="w-4 h-4 transition-transform ${readingPlanExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Featured "today / up next" row (always visible) -->
+          <div class="px-5 md:px-6 pb-5 md:pb-6">
+            ${
+              isLocked(featured.date)
+                ? `
+                  <div class="w-full text-left p-4 rounded-2xl bg-gradient-to-r from-cream-3/70 to-cream-2 border border-white flex items-center gap-4 cursor-not-allowed">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[10px] uppercase tracking-[0.3em] text-ink-3">${featuredLabel} · Day ${featured.n}</p>
+                      <p class="text-ink font-medium mt-0.5 truncate">${featured.reading}</p>
+                      <p class="text-[11px] text-ink-3 mt-0.5">${formatDateShort(featured.date)} · ${dowShort(featured.date)}</p>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-ink-3">Locked</span>
+                  </div>
+                `
+                : `
+                  <button
+                    type="button"
+                    onclick="openDay('${featured.date}')"
+                    class="w-full text-left p-4 rounded-2xl bg-gradient-to-r from-sky/15 via-sage/10 to-peach/10 hover:from-sky/25 hover:via-sage/20 hover:to-peach/20 border border-white transition-all flex items-center gap-4"
+                  >
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[10px] uppercase tracking-[0.3em] text-ink-3">${featuredLabel} · Day ${featured.n}</p>
+                      <p class="text-ink font-medium mt-0.5 truncate">${featured.reading}</p>
+                      <p class="text-[11px] text-ink-3 mt-0.5">${formatDateShort(featured.date)} · ${dowShort(featured.date)}</p>
+                    </div>
+                    <svg class="w-4 h-4 text-ink-3 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                `
+            }
+          </div>
+
+          <!-- Expanded body -->
+          <div class="${readingPlanExpanded ? 'block' : 'hidden'} border-t border-cream-3/60">
+            <!-- Intro -->
+            <div class="p-5 md:p-6 bg-cream-2/40 border-b border-cream-3/60">
+              <p class="text-[13px] text-ink-2 leading-relaxed">${readingPlan.intro}</p>
+              <p class="text-[13px] text-ink-2 leading-relaxed mt-3"><span class="font-semibold text-ink">Tip: </span>${readingPlan.tip}</p>
+            </div>
+
+            <!-- Sections (scroll-contained) -->
+            <div class="p-5 md:p-6 max-h-[70vh] overflow-y-auto">
+              ${sectionsHtml}
+            </div>
+
+            <!-- Notes -->
+            <div class="p-5 md:p-6 bg-cream-2/40 border-t border-cream-3/60">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3 mb-3">A few notes</p>
+              ${notesHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleReadingPlan() {
+      readingPlanExpanded = !readingPlanExpanded;
+      renderReadingPlan();
+      if (readingPlanExpanded) {
+        // Defer so the DOM exists, then scroll to today (or start) inside the panel
+        requestAnimationFrame(() => jumpToTodayInPlan(true));
+      }
+    }
+
+    function jumpToTodayInPlan(fromToggle) {
+      // Expand if not already
+      if (!readingPlanExpanded) {
+        readingPlanExpanded = true;
+        renderReadingPlan();
+        requestAnimationFrame(() => jumpToTodayInPlan(true));
+        return;
+      }
+      const ctx = getPlanContext();
+      if (!ctx || !ctx.day) return;
+      const target = document.querySelector(`[data-day-id="plan-day-${ctx.day.n}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: fromToggle ? 'auto' : 'smooth', block: 'center' });
+      }
+    }
+
+    /* =====================================================================
      *  HOME VIEW — month cards with mini calendar previews
      *  ===================================================================== */
     function renderMonthCards() {
@@ -815,6 +1207,7 @@
       void document.getElementById('homeView').offsetWidth; // force reflow to replay animation
       document.getElementById('homeView').classList.add('fade-in-up');
       renderUpdatesPanel();
+      renderReadingPlan();
       renderMonthCards();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -966,6 +1359,7 @@
      *  INIT
      *  ===================================================================== */
     renderUpdatesPanel();
+    renderReadingPlan();
     renderMonthCards();
     updateProgress();
   </script>
