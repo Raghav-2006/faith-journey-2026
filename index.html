@@ -266,7 +266,10 @@
       <div id="updatesPanel" class="mb-6 md:mb-8"></div>
 
       <!-- Reading plan / expected timeline -->
-      <div id="readingPlanPanel" class="mb-8 md:mb-10"></div>
+      <div id="readingPlanPanel" class="mb-6 md:mb-8"></div>
+
+      <!-- Diary -->
+      <div id="diaryPanel" class="mb-8 md:mb-10"></div>
 
       <!-- Month cards -->
       <div id="monthGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6"></div>
@@ -474,6 +477,49 @@
   </div>
 
   <!-- =================================================================
+       DIARY MODAL
+       ================================================================= -->
+  <div
+    id="diaryModalBackdrop"
+    class="hidden fixed inset-0 z-50 bg-ink/25 backdrop-blur-md p-4 md:p-8 overflow-y-auto backdrop-fade"
+    onclick="closeDiaryBackdrop(event)"
+  >
+    <div class="min-h-full grid place-items-center">
+    <div class="modal-enter w-full max-w-2xl">
+      <article class="relative bg-cream-2 rounded-[28px] shadow-soft-xl border border-white overflow-hidden">
+        <!-- Soft top accent -->
+        <div class="h-1.5 bg-gradient-to-r from-lavender via-sky to-sage"></div>
+
+        <!-- Close -->
+        <button
+          type="button"
+          onclick="closeDiaryModal()"
+          aria-label="Close"
+          class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-ink-2 hover:text-ink transition-all shadow-soft border border-white"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <div class="p-7 md:p-10 max-h-[80dvh] overflow-y-auto">
+          <p id="diaryModalDayName" class="text-[11px] text-ink-3 uppercase tracking-[0.3em]"></p>
+          <h2 id="diaryModalDate" class="font-serif text-2xl md:text-3xl text-ink mt-1"></h2>
+
+          <div class="flex items-center gap-2 mt-4">
+            <div id="diaryModalMood" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-peach/30 text-[11px] text-ink tracking-wide"></div>
+          </div>
+
+          <h3 id="diaryModalTitle" class="font-serif text-3xl md:text-4xl text-ink mt-5 leading-tight"></h3>
+
+          <div id="diaryModalBody" class="mt-6 text-[15px] text-ink-2 leading-relaxed whitespace-pre-line"></div>
+        </div>
+      </article>
+    </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
        FOOTER
        ================================================================= -->
   <footer class="max-w-6xl mx-auto px-6 py-10 md:py-12 text-center">
@@ -534,6 +580,34 @@
      *    dates    — array of entry dates added/edited, e.g. ["2026-05-03"]
      *    note     — (optional) short description
      * ===================================================================== */
+    /* =====================================================================
+     *  DIARY ENTRIES
+     *  ---------------------------------------------------------------------
+     *  Free-form, longer reflections that aren't tied to a single Bible
+     *  reading or day's "what I did". Add new entries at the TOP of the
+     *  array so the latest is featured.
+     *
+     *  Fields:
+     *    id    — any unique string
+     *    date  — "YYYY-MM-DD" (used for display + sort)
+     *    title — short title
+     *    body  — long form text. Use \n\n for paragraph breaks.
+     *    mood  — (optional) one short word, e.g. "hopeful", "tired"
+     * ===================================================================== */
+    const diaryEntries = [
+      /* ---------- EXAMPLE (uncomment + edit to use) ----------
+      {
+        id:    "d-20260504-1",
+        date:  "2026-05-04",
+        title: "First page",
+        mood:  "hopeful",
+        body:
+          "Started the journey today. Genesis 1 still hits different — there's something gentle about beginning at the beginning.\n\n" +
+          "Trying to remember that consistency > intensity. Show up tomorrow. Show up the day after.",
+      },
+      -------------------------------------------------------- */
+    ];
+
     /* =====================================================================
      *  READING PLAN
      *  ---------------------------------------------------------------------
@@ -1131,6 +1205,150 @@
     }
 
     /* =====================================================================
+     *  DIARY PANEL + MODAL
+     *  ===================================================================== */
+    let diaryExpanded = false;
+
+    const sortedDiary = () => [...diaryEntries].sort((a, b) => (a.date < b.date ? 1 : -1));
+
+    function previewBody(text, max = 140) {
+      const oneLine = (text || '').replace(/\s+/g, ' ').trim();
+      return oneLine.length > max ? oneLine.slice(0, max - 1) + '…' : oneLine;
+    }
+
+    function renderDiaryPanel() {
+      const panel = document.getElementById('diaryPanel');
+      const sorted = sortedDiary();
+
+      if (sorted.length === 0) {
+        // Quiet empty state — soft prompt to add the first entry.
+        panel.innerHTML = `
+          <div class="bg-white/70 backdrop-blur-sm rounded-[22px] p-5 md:p-6 shadow-soft border border-white">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-lavender/60 to-peach/40 flex items-center justify-center shadow-soft flex-shrink-0">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V8l-5-5H5zm9 1.5L17.5 8H14V4.5z" opacity=".95"/></svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3">Diary</p>
+                <p class="text-sm text-ink mt-0.5">No entries yet — your first page is waiting.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const latest = sorted[0];
+      const rest   = sorted.slice(1);
+
+      const renderRow = (e, idx) => `
+        <button
+          type="button"
+          onclick="openDiaryEntry('${e.id}')"
+          class="w-full text-left px-4 py-3.5 rounded-2xl bg-white/65 hover:bg-white border border-white transition-all flex items-start gap-4 ${idx > 0 ? 'mt-2' : ''}"
+        >
+          <div class="flex flex-col items-center w-12 flex-shrink-0">
+            <span class="text-[10px] uppercase tracking-widest text-ink-3">${dowShort(e.date)}</span>
+            <span class="text-base font-semibold text-ink leading-tight tabular-nums">${e.date.split('-')[2].replace(/^0/, '')}</span>
+            <span class="text-[10px] uppercase tracking-widest text-ink-3">${MONTH_NAMES[Number(e.date.split('-')[1]) - 1].slice(0, 3)}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="font-serif text-lg text-ink truncate">${e.title || 'Untitled'}</h4>
+              ${e.mood ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-peach/30 text-ink-2 tracking-wide">${e.mood}</span>` : ''}
+            </div>
+            <p class="text-[13px] text-ink-2 leading-snug mt-1 line-clamp-2">${previewBody(e.body)}</p>
+          </div>
+          <svg class="w-4 h-4 text-ink-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      `;
+
+      panel.innerHTML = `
+        <div class="bg-white/75 backdrop-blur-sm rounded-[22px] shadow-soft border border-white overflow-hidden">
+          <!-- Header -->
+          <div class="p-5 md:p-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-lavender/60 to-peach/40 flex items-center justify-center shadow-soft flex-shrink-0">
+                <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V8l-5-5H5zm9 1.5L17.5 8H14V4.5z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] uppercase tracking-[0.25em] text-ink-3">Diary</p>
+                <p class="text-sm text-ink mt-0.5 truncate">
+                  ${sorted.length} ${sorted.length === 1 ? 'entry' : 'entries'} · last on ${formatDateShort(latest.date)}
+                </p>
+              </div>
+            </div>
+            ${rest.length > 0 ? `
+              <button
+                type="button"
+                onclick="toggleDiaryPanel()"
+                aria-label="Toggle diary"
+                class="w-8 h-8 rounded-full bg-white hover:bg-cream-2 flex items-center justify-center text-ink-2 transition-all shadow-soft border border-white flex-shrink-0"
+              >
+                <svg class="w-4 h-4 transition-transform ${diaryExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+
+          <!-- Featured (latest) -->
+          <div class="px-5 md:px-6 pb-5 md:pb-6">
+            ${renderRow(latest, 0)}
+          </div>
+
+          ${rest.length > 0 ? `
+            <div class="${diaryExpanded ? 'block' : 'hidden'} border-t border-cream-3/60 px-5 md:px-6 py-5 md:py-6 max-h-[60vh] overflow-y-auto">
+              ${rest.map((e, i) => renderRow(e, i + 1)).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function toggleDiaryPanel() {
+      diaryExpanded = !diaryExpanded;
+      renderDiaryPanel();
+    }
+
+    function openDiaryEntry(id) {
+      const entry = diaryEntries.find((e) => e.id === id);
+      if (!entry) return;
+
+      const [y, mo, d] = entry.date.split('-').map(Number);
+      const dateObj = new Date(y, mo - 1, d);
+
+      document.getElementById('diaryModalDayName').textContent = DAY_NAMES[dateObj.getDay()];
+      document.getElementById('diaryModalDate').textContent    = `${MONTH_NAMES[mo - 1]} ${d}, ${y}`;
+      document.getElementById('diaryModalTitle').textContent   = entry.title || 'Untitled';
+      document.getElementById('diaryModalBody').textContent    = entry.body || '';
+
+      const moodEl = document.getElementById('diaryModalMood');
+      if (entry.mood) {
+        moodEl.textContent = entry.mood;
+        moodEl.classList.remove('hidden');
+      } else {
+        moodEl.classList.add('hidden');
+      }
+
+      const bd = document.getElementById('diaryModalBackdrop');
+      bd.classList.remove('hidden');
+      bd.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDiaryModal() {
+      document.getElementById('diaryModalBackdrop').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function closeDiaryBackdrop(e) {
+      if (e.target.id === 'diaryModalBackdrop') closeDiaryModal();
+    }
+
+    /* =====================================================================
      *  HOME VIEW — month cards with mini calendar previews
      *  ===================================================================== */
     function renderMonthCards() {
@@ -1202,6 +1420,7 @@
       document.getElementById('homeView').classList.add('fade-in-up');
       renderUpdatesPanel();
       renderReadingPlan();
+      renderDiaryPanel();
       renderMonthCards();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1346,10 +1565,14 @@
      *  KEYBOARD
      *  ===================================================================== */
     document.addEventListener('keydown', (e) => {
-      const modalOpen = !document.getElementById('modalBackdrop').classList.contains('hidden');
-      if (!modalOpen) return;
-      if (e.key === 'Escape') closeModal();
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(e); }
+      const dayModalOpen   = !document.getElementById('modalBackdrop').classList.contains('hidden');
+      const diaryModalOpen = !document.getElementById('diaryModalBackdrop').classList.contains('hidden');
+      if (!dayModalOpen && !diaryModalOpen) return;
+      if (e.key === 'Escape') {
+        if (diaryModalOpen) closeDiaryModal();
+        else closeModal();
+      }
+      if (dayModalOpen && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flipCard(e); }
     });
 
     /* =====================================================================
@@ -1357,6 +1580,7 @@
      *  ===================================================================== */
     renderUpdatesPanel();
     renderReadingPlan();
+    renderDiaryPanel();
     renderMonthCards();
     updateProgress();
   </script>
